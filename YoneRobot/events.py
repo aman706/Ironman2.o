@@ -1,11 +1,13 @@
-
-
-
-
-
-
-from pathlib import Path
 from telethon import events
+
+from YoneRobot import telethn
+
+
+
+
+
+
+
 
  
 
