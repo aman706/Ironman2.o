@@ -1,20 +1,13 @@
-import inspect
-import glob
-import logging
-import sys
-import re
+
+
+
+
+
 
 from pathlib import Path
 from telethon import events
 
-from pymongo import MongoClient
-from YoneRobot import MONGO_DB_URI
-from YoneRobot import telethn
-
-client = MongoClient()
-client = MongoClient(MONGO_DB_URI)
-db = client["darkuserbot"]
-gbanned = db.gban
+ 
 
 def register(**args):
     """ Registers a new message. """
