@@ -96,10 +96,10 @@ buttons = [
 
 
 HELP_STRINGS = """
-`ʜɪ.. ɪ'ᴍ` [yone🙋‍♀️](https://telegra.ph/file/e1bff37e0e4c003d28646.jpg) 
+`ʜɪ.. ɪ'ᴍ` [ironman](https://telegra.ph/file/e1bff37e0e4c003d28646.jpg) 
 `ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴅᴏᴄᴜᴍᴇɴᴛᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ꜱᴘᴇᴄɪꜰɪᴄ ᴍᴏᴅᴜʟᴇꜱ..`"""
 
-yone_IMG = "https://telegra.ph/file/e1bff37e0e4c003d28646.jpg"
+ironman_IMG = "https://telegra.ph/file/e1bff37e0e4c003d28646.jpg"
 
 DONATE_STRING = """Heya, glad to hear you want to donate!
  You can support the project via [Paypal](#) or by contacting @kittu5588 \
@@ -345,7 +345,7 @@ def help_button(update, context):
 
 
 @run_async
-def yone_about_callback(update, context):
+def ironman_about_callback(update, context):
     query = update.callback_query
     if query.data == "ironman_":
         query.message.edit_text(
@@ -697,7 +697,7 @@ def main():
     settings_handler = CommandHandler("settings", get_settings)
     settings_callback_handler = CallbackQueryHandler(settings_button, pattern=r"stngs_")
 
-    about_callback_handler = CallbackQueryHandler(yone_about_callback, pattern=r"yone_")
+    about_callback_handler = CallbackQueryHandler(ironman_about_callback, pattern=r"ironman_")
     source_callback_handler = CallbackQueryHandler(Source_about_callback, pattern=r"source_")
 
     donate_handler = CommandHandler("donate", donate)
