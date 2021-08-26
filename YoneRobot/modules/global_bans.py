@@ -428,4 +428,131 @@ def check_and_ban(update, user_id, should_message=True):
                 f"<b>Alert</b>: this user is globally banned.\n"
                 f"<code>*bans them from here*</code>.\n"
                 f"<b>Appeal chat</b>: {SPAMWATCH_SUPPORT_CHAT}\n"
-                f"<b>User ID</b>: <code>{sw_
+                f"<b>User ID</b>: <code>{sw_ban.id}</code>\n"
+                f"<b>Ban Reason</b>: <code>{html.escape(sw_ban.reason)}</code>",
+                parse_mode=ParseMode.HTML,
+            )
+        return
+
+    if sql.is_user_gbanned(user_id):
+        update.effective_chat.kick_member(user_id)
+        if should_message:
+            text = (
+                f"<b>Alert</b>: this user is globally banned.\n"
+                f"<code>*bans them from here*</code>.\n"
+                f"<b>Appeal chat</b>: @{SUPPORT_CHAT}\n"
+                f"<b>User ID</b>: <code>{user_id}</code>"
+            )
+            user = sql.get_gbanned_user(user_id)
+            if user.reason:
+                text += f"\n<b>Ban Reason:</b> <code>{html.escape(user.reason)}</code>"
+            update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
+
+
+@run_async
+def enforce_gban(update: Update, context: CallbackContext):
+    # Not using @restrict handler to avoid spamming - just ignore if cant gban.
+    bot = context.bot
+    try:
+        restrict_permission = update.effective_chat.get_member(
+            bot.id
+        ).can_restrict_members
+    except Unauthorized:
+        return
+    if sql.does_chat_gban(update.effective_chat.id) and restrict_permission:
+        user = update.effective_user
+        chat = update.effective_chat
+        msg = update.effective_message
+
+        if user and not is_user_admin(chat, user.id):
+            check_and_ban(update, user.id)
+            return
+
+        if msg.new_chat_members:
+            new_members = update.effective_message.new_chat_members
+            for mem in new_members:
+                check_and_ban(update, mem.id)
+
+        if msg.reply_to_message:
+            user = msg.reply_to_message.from_user
+            if user and not is_user_admin(chat, user.id):
+                check_and_ban(update, user.id, should_message=False)
+
+
+@run_async
+@user_admin
+def gbanstat(update: Update, context: CallbackContext):
+    args = context.args
+    if len(args) > 0:
+        if args[0].lower() in ["on", "yes"]:
+            sql.enable_gbans(update.effective_chat.id)
+            update.effective_message.reply_text(
+                "Antispam is now enabled ✅ "
+                "I am now protecting your group from potential remote threats!"
+            )
+        elif args[0].lower() in ["off", "no"]:
+            sql.disable_gbans(update.effective_chat.id)
+            update.effective_message.reply_text(
+                "Antispan is now disabled ❌ " "Spamwatch is now disabled ❌"
+            )
+    else:
+        update.effective_message.reply_text(
+            "Give me some arguments to choose a setting! on/off, yes/no!\n\n"
+            "Your current setting is: {}\n"
+            "When True, any gbans that happen will also happen in your group. "
+            "When False, they won't, leaving you at the possible mercy of "
+            "spammers.".format(sql.does_chat_gban(update.effective_chat.id))
+        )
+
+
+def __stats__():
+    return f"• {sql.num_gbanned_users()} gbanned users."
+
+
+def __user_info__(user_id):
+    is_gbanned = sql.is_user_gbanned(user_id)
+    text = "Malicious: <b>{}</b>"
+    if user_id in [777000, 1087968824]:
+        return ""
+    if user_id == dispatcher.bot.id:
+        return ""
+    if int(user_id) in DRAGONS + TIGERS + WOLVES:
+        return ""
+    if is_gbanned:
+        text = text.format("Yes")
+        user = sql.get_gbanned_user(user_id)
+        if user.reason:
+            text += f"\n<b>Reason:</b> <code>{html.escape(user.reason)}</code>"
+        text += f"\n<b>Appeal Chat:</b> @{SUPPORT_CHAT}"
+    else:
+        text = text.format("???")
+    return text
+
+
+def __migrate__(old_chat_id, new_chat_id):
+    sql.migrate_chat(old_chat_id, new_chat_id)
+
+
+def __chat_settings__(chat_id, user_id):
+    return f"This chat is enforcing *gbans*: `{sql.does_chat_gban(chat_id)}`."
+
+
+GBAN_HANDLER = CommandHandler("gban", gban)
+UNGBAN_HANDLER = CommandHandler("ungban", ungban)
+GBAN_LIST = CommandHandler("gbanlist", gbanlist)
+
+GBAN_STATUS = CommandHandler("antispam", gbanstat, filters=Filters.group)
+
+GBAN_ENFORCER = MessageHandler(Filters.all & Filters.group, enforce_gban)
+
+dispatcher.add_handler(GBAN_HANDLER)
+dispatcher.add_handler(UNGBAN_HANDLER)
+dispatcher.add_handler(GBAN_LIST)
+dispatcher.add_handler(GBAN_STATUS)
+
+__mod_name__ = "Anti-Spam"
+__handlers__ = [GBAN_HANDLER, UNGBAN_HANDLER, GBAN_LIST, GBAN_STATUS]
+
+if STRICT_GBAN:  # enforce GBANS if this is set
+    dispatcher.add_handler(GBAN_ENFORCER, GBAN_ENFORCE_GROUP)
+    __handlers__.append((GBAN_ENFORCER, GBAN_ENFORCE_GROUP))
