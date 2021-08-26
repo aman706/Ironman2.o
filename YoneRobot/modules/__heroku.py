@@ -1,10 +1,8 @@
 import asyncio
 import math
 import os
-
 import heroku3
 import requests
-
 from YoneRobot import telethn as borg, HEROKU_APP_NAME, HEROKU_API_KEY, OWNER_ID
 from YoneRobot.events import register
 
@@ -127,9 +125,7 @@ async def dyno_usage(dyno):
     path = "/accounts/" + user_id + "/actions/get-quota"
     r = requests.get(heroku_api + path, headers=headers)
     if r.status_code != 200:
-        return await die.edit(
-            "`Error: something bad happened`\n\n" f">.`{r.reason}`\n"
-        )
+        return await die.edit("`Error: something bad happened`\n\n" f">.`{r.reason}`\n")
     result = r.json()
     quota = result["account_quota"]
     quota_used = result["quota_used"]
@@ -180,9 +176,7 @@ async def _(dyno):
         Heroku = heroku3.from_key(HEROKU_API_KEY)
         app = Heroku.app(HEROKU_APP_NAME)
     except:
-        return await dyno.reply(
-            " Please make sure your Heroku API Key, Your App name are configured correctly in the heroku"
-        )
+        return await dyno.reply(" Please make sure your Heroku API Key, Your App name are configured correctly in the heroku")
     v = await dyno.reply("Getting Logs....")
     with open("logs.txt", "w") as log:
         log.write(app.get_log())
@@ -191,7 +185,7 @@ async def _(dyno):
         dyno.chat_id,
         "logs.txt",
         reply_to=dyno.id,
-        caption="yone Bot Logz.",
+        caption="Ironman Log",
     )
 
     await asyncio.sleep(5)
