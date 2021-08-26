@@ -1,9 +1,7 @@
-
-
-
 from gpytranslate import Translator
 from telegram.ext import CommandHandler, CallbackContext
-from telegram import (     Message,     Chat,     User,     ParseMode,     Update,     InlineKeyboardMarkup,     InlineKeyboardButton,
+from telegram import 
+(     Message,     Chat,     User,     ParseMode,     Update,     InlineKeyboardMarkup,     InlineKeyboardButton,
 )
 from YoneRobot import dispatcher, pbot
 from pyrogram import filters
