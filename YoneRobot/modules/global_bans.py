@@ -15,7 +15,7 @@ from telegram.ext import (
 from telegram.utils.helpers import mention_html
 
 import YoneRobot.modules.sql.global_bans_sql as sql
-from YoneRobot.modules.sql.users_sql import get_user_com_chats
+from YoneRobott.modules.sql.users_sql import get_user_com_chats
 from YoneRobot import (
     DEV_USERS,
     EVENT_LOGS,
@@ -39,7 +39,7 @@ from YoneRobot.modules.helper_funcs.extraction import (
     extract_user,
     extract_user_and_text,
 )
-from YoneRobot.modules.helper_funcs.misc import send_to_list
+fromYoneRobot.modules.helper_funcs.misc import send_to_list
 
 GBAN_ENFORCE_GROUP = 6
 
@@ -405,11 +405,11 @@ def gbanlist(update: Update, context: CallbackContext):
             banfile += f"Reason: {user['reason']}\n"
 
     with BytesIO(str.encode(banfile)) as output:
-        output.name = "gbanlist.txt"
+        output.name = "yui-gbanlist.txt"
         update.effective_message.reply_document(
             document=output,
-            filename="gbanlist.txt",
-            caption="Here is the list of currently gbanned users.",
+            filename="yui-gbanlist.txt",
+            caption="Here is The File of Currently Gbanned Users.",
         )
 
 
@@ -487,13 +487,15 @@ def gbanstat(update: Update, context: CallbackContext):
         if args[0].lower() in ["on", "yes"]:
             sql.enable_gbans(update.effective_chat.id)
             update.effective_message.reply_text(
-                "Antispam is now enabled ✅ "
-                "I am now protecting your group from potential remote threats!"
+                "⌜AntiSpam iS ON ✓"
+                "Now Protecting Your Group"
+                "From t-GOD System Crime USERS⌟"
             )
         elif args[0].lower() in ["off", "no"]:
             sql.disable_gbans(update.effective_chat.id)
             update.effective_message.reply_text(
-                "Antispan is now disabled ❌ " "Spamwatch is now disabled ❌"
+                "Antispan is now Disabled ❌ "
+                "Spamwatch is Now Disabled ❌"
             )
     else:
         update.effective_message.reply_text(
@@ -506,7 +508,7 @@ def gbanstat(update: Update, context: CallbackContext):
 
 
 def __stats__():
-    return f"• {sql.num_gbanned_users()} gbanned users."
+    return f"┝ {sql.num_gbanned_users()} GBAN Users."
 
 
 def __user_info__(user_id):
@@ -537,6 +539,11 @@ def __chat_settings__(chat_id, user_id):
     return f"This chat is enforcing *gbans*: `{sql.does_chat_gban(chat_id)}`."
 
 
+
+
+
+
+
 GBAN_HANDLER = CommandHandler("gban", gban)
 UNGBAN_HANDLER = CommandHandler("ungban", ungban)
 GBAN_LIST = CommandHandler("gbanlist", gbanlist)
@@ -550,7 +557,9 @@ dispatcher.add_handler(UNGBAN_HANDLER)
 dispatcher.add_handler(GBAN_LIST)
 dispatcher.add_handler(GBAN_STATUS)
 
-__mod_name__ = "Anti-Spam"
+
+
+
 __handlers__ = [GBAN_HANDLER, UNGBAN_HANDLER, GBAN_LIST, GBAN_STATUS]
 
 if STRICT_GBAN:  # enforce GBANS if this is set
